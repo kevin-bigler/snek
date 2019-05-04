@@ -1,27 +1,18 @@
-// const gameLoop = (name, frameRate) => {
-//     setTimeout(() => {
-//         requestAnimationFrame(name);
-//     }, 1000 / frameRate);
-// };
-
-let accumulatedTime = 0;
-let deltaTime = 0;
-let lastTime = 0;
-let fps = 0;
-
 class GameLoop {
     running = false;
 
-    constructor() {
-        this.init();
+    constructor(fps, fn) {
+        this.init(fps, fn);
     }
 
     init(fps, fn) {
         // const currentTime = () => +new Date();
         // let timeMillis;
         const enqueue = (timeout) => setTimeout(() => requestAnimationFrame(this.loop), timeout);
-        const minDtMillis = 1.0 / 60.0; // TODO inject config
-        const maxDtMillis = 3.0 / 60.0; // TODO inject config
+        const minDtSec = 1.0 / 60.0; // TODO inject config
+        const maxDtSec = 3.0 / 60.0; // TODO inject config
+        const minDtMillis = minDtSec * 1000.0;
+        const maxDtMillis = maxDtSec * 1000.0;
         const sleepTimeMillis = 1; // TODO inject config
         let dtMillis, lastTime = 0, sleepStart;
         let sleeping = false;
@@ -52,9 +43,10 @@ class GameLoop {
                 enqueue(sleepTimeMillis);
             }
 
-            fn(dtMillis);
+            fn(dtMillis / 1000.0);
             monitorFps(timeMillis);
             lastTime = timeMillis;
+            // calls loop() via setTimeout and requestAnimationFrame
             enqueue(0);
         };
         this.loop = loop.bind(this);
@@ -68,26 +60,7 @@ class GameLoop {
     stop() {
         this.running = false;
     }
-
-    update(time) {
-        accumulatedTime += (time - lastTime) / 1000;
-
-        if (accumulatedTime > 1) {
-            accumulatedTime = 1;
-        }
-
-        while (accumulatedTime > fps) {
-            this.update(fps);
-            accumulatedTime -= fps;
-        }
-
-        lastTime = time;
-
-        requestAnimationFrame(this.update);
-    }
 }
-
-// const gameLoop = (fps, fn) => setTimeout(() => requestAnimationFrame(fn), 1000 / fps);
 
 // TODO: export to FPS Monitor class/module
 // TODO: add a RESET function
