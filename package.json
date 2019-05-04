@@ -1,0 +1,37 @@
+{
+  "name": "snek",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/kevin-bigler/snek.git",
+  "author": "Kevin Bigler <kevinbigler@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "test": "NODE_ENV=development jest src",
+    "build": "parcel build src/index.html",
+    "dev": "parcel src/index.html # starts a dev server",
+    "watch": "parcel watch src/index.html # does not start a dev server",
+    "flow": "flow"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.4.0",
+    "pixi.js": "^4.4.4"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.4.0",
+    "@babel/plugin-proposal-class-properties": "^7.4.0",
+    "@babel/preset-env": "^7.4.2",
+    "jest": "^24.5.0",
+    "parcel-bundler": "^1.12.3"
+  },
+  "jest": {
+    "testMatch": [
+      "**/?(*.)+(spec|test).[jt]s?(x)"
+    ],
+    "collectCoverageFrom": [
+      "**/*.{js,jsx,ts}",
+      "!**/node_modules/**",
+      "!**/dist/**"
+    ]
+  }
+}
