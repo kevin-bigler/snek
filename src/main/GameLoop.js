@@ -18,13 +18,13 @@ class GameLoop {
         let sleeping = false;
 
         const loop = (timeMillis) => {
-            // timeMillis = currentTime();
+            // (A) timeMillis = currentTime();
             if (!this.running) {
                 console.log('game loop stopping, because running=false');
                 return;
             }
 
-            // see block (D) below for sleep mechanic
+            // (B) see block (D) below for sleep mechanic
             if (!sleeping) {
                 // the de facto formula
                 dtMillis = timeMillis - lastTime;
@@ -32,12 +32,12 @@ class GameLoop {
                 dtMillis += timeMillis - sleepStart;
             }
 
-            // minimize compensation for dt being too big
+            // (C) minimize compensation for dt being too big
             if (dtMillis > maxDtMillis) {
                 dtMillis = maxDtMillis;
             }
 
-            // don't overexert (minimize processes/sec)
+            // (D) don't overexert (minimize processes/sec)
             if (dtMillis < minDtMillis) {
                 sleepStart = timeMillis;
                 enqueue(sleepTimeMillis);

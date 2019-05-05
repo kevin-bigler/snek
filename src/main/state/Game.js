@@ -1,4 +1,5 @@
 import type {GameState} from './GameState.type';
+import bb from '../bb';
 
 export default class Game implements GameState {
     /**
@@ -10,14 +11,18 @@ export default class Game implements GameState {
      * @param deps.artist Helper to draw things to the UI
      */
     constructor({bb, controller, artist}) {
-        this.bb = bb;
+        // this.bb = bb;
         this.controller = controller;
         this.artist = artist;
         this.initialized = false;
         this.state = 'init';
+
+        this.update = this.update.bind(this);
     }
 
     init() {
+        bb.something = 'foo';
+        console.log('blackboard as we see it in Game#init():', JSON.stringify(bb, null, 2));
         // TODO create snake, scoreboard, etc
         this.initialized = true;
         this.state = 'normal';
