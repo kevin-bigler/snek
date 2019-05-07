@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.4.0",
-    "pixi.js": "^4.4.4"
+    "pixi.js": "^4.4.4",
+    "ramda": "^0.26.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
