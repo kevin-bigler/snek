@@ -15,13 +15,15 @@ let game, mainMenu, pauseMenu;
 const states = {
     get Game() {
         if (!game) {
-            game = new Game();
+            console.log('instantiating Game');
+            game = new Game({});
             game.update = game.update.bind(game);
         }
         return game;
     },
     get MainMenu() {
         if (!mainMenu) {
+            console.log('instantiating MainMenu');
             mainMenu = new MainMenu();
             mainMenu.update = mainMenu.update.bind(mainMenu);
         }
@@ -29,6 +31,7 @@ const states = {
     },
     get PauseMenu() {
         if (!pauseMenu) {
+            console.log('instantiating PauseMenu');
             pauseMenu = new PauseMenu();
             pauseMenu.update = pauseMenu.update.bind(pauseMenu);
         }

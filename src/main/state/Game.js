@@ -17,18 +17,19 @@ export default class Game implements GameState {
         this.initialized = false;
         this.state = 'init';
 
-        this.update = this.update.bind(this);
+        this.init();
     }
 
     init() {
-        bb.something = 'foo';
-        console.log('blackboard as we see it in Game#init():', JSON.stringify(bb, null, 2));
+        console.log('game init');
+        setTimeout(() => bb.currentState = 'MainMenu', 3000);
         // TODO create snake, scoreboard, etc
         this.initialized = true;
         this.state = 'normal';
     }
 
     update(dt: number) {
+        console.log('Game.update()');
         if (!this.initialized) {
             this.init();
         }

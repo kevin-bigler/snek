@@ -1,4 +1,18 @@
-class GameLoop {
+/**
+ * Calculates how long a frame should last, given a frame rate (fps)
+ * @param fps
+ * @return {number} seconds
+ */
+const getFrameDuration = fps => 1.0 / fps;
+
+/**
+ * Calculates how long a frame should last, given a frame rate (fps)
+ * @param fps
+ * @return {number} millis
+ */
+const getFrameDurationMillis = fps => 1000.0 / fps;
+
+export default class GameLoop {
     running = false;
 
     constructor(fps, fn) {
@@ -6,19 +20,23 @@ class GameLoop {
     }
 
     init(fps, fn) {
-        // const currentTime = () => +new Date();
-        // let timeMillis;
-        const enqueue = (timeout) => setTimeout(() => requestAnimationFrame(this.loop), timeout);
-        const minDtSec = 1.0 / 60.0; // TODO inject config
-        const maxDtSec = 3.0 / 60.0; // TODO inject config
-        const minDtMillis = minDtSec * 1000.0;
-        const maxDtMillis = maxDtSec * 1000.0;
-        const sleepTimeMillis = 1; // TODO inject config
+        console.log('game loop init, fps:', fps);
+        // TODO inject config
+        const minDtMillis = getFrameDurationMillis(fps * 1.5);
+        const maxDtMillis = getFrameDurationMillis(fps / 2.0);
+        const sleepTimeMillis = getFrameDurationMillis(fps * 2.0);
         let dtMillis, lastTime = 0, sleepStart;
         let sleeping = false;
 
+        // TODO: remove itr after debugging is complete
+        let itr = 0;
         const loop = (timeMillis) => {
-            // (A) timeMillis = currentTime();
+            // console.log('loop timeMillis: ', timeMillis, 'itr', itr);
+            itr++;
+            if (itr > 50) {
+                this.running = false;
+            }
+            // (A) stop() called
             if (!this.running) {
                 console.log('game loop stopping, because running=false');
                 return;
@@ -27,6 +45,7 @@ class GameLoop {
             // (B) see block (D) below for sleep mechanic
             if (!sleeping) {
                 // the de facto formula
+                console.log('game loop iteration');
                 dtMillis = timeMillis - lastTime;
             } else {
                 dtMillis += timeMillis - sleepStart;
@@ -38,42 +57,65 @@ class GameLoop {
             }
 
             // (D) don't overexert (minimize processes/sec)
-            if (dtMillis < minDtMillis) {
-                sleepStart = timeMillis;
-                enqueue(sleepTimeMillis);
-            }
+            // if (dtMillis < minDtMillis) {
+            //     console.log('sleeping for', sleepTimeMillis);
+            //     sleepStart = timeMillis;
+            //     this.enqueue(sleepTimeMillis);
+            //     return;
+            // }
 
+            // run the main function that we're wrapping in the loop (fn)
             fn(dtMillis / 1000.0);
             monitorFps(timeMillis);
             lastTime = timeMillis;
             // calls loop() via setTimeout and requestAnimationFrame
-            enqueue(0);
+            this.enqueue(getFrameDurationMillis(fps * 2.0));
         };
         this.loop = loop.bind(this);
     }
 
+    /**
+     *
+     * @param timeout millis
+     */
+    enqueue(timeout) {
+        setTimeout(() =>
+            requestAnimationFrame(this.loop),
+            timeout);
+    }
+
     start() {
+        console.log('game loop start');
         this.running = true;
-        this.loop();
+        this.loop(+new Date());
     }
 
     stop() {
+        console.log('game loop stop');
         this.running = false;
     }
 }
 
 // TODO: export to FPS Monitor class/module
 // TODO: add a RESET function
-let frames = 0, actualFps = 0, lastActualFps;
+let frames = 0, actualFps = 0, lastActualFps, lastTime;
 const monitorFps = (timeMillis) => {
     frames++;
     if (!lastActualFps) {
         lastActualFps = timeMillis;
     }
     if (frames > 1000) {
-        actualFps = frames / lastActualFps;
         frames = 0;
+        const dtSec = (timeMillis - lastActualFps) / 1000;
+        actualFps = Math.round(frames / dtSec);
         lastActualFps = timeMillis;
+        // console.log('fps: ', actualFps);
+        document.getElementById('fps').innerHTML = 'fps: ' + actualFps.toFixed(1);
     }
-    console.log('fps: ', actualFps);
+
+    if (lastTime) {
+        const sinceLast = timeMillis - lastTime;
+        console.log('time since last loop:', sinceLast.toFixed(1), 'ms');
+    }
+    lastTime = timeMillis;
 };
