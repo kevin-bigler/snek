@@ -24,6 +24,21 @@ export default class Game implements GameState {
         console.log('game init');
         setTimeout(() => bb.currentState = 'MainMenu', 3000);
         // TODO create snake, scoreboard, etc
+
+        const snek = new Snek();
+        const board = new Board({width: 30, height: 20});
+        board.addEventListener('DIE', () => console.error('you died')); // TODO death function
+
+        board.clear();
+        board.setHead({x: 5, y: 5});
+        board.move('UP');
+        board.move('DOWN');
+        board.move('LEFT');
+        board.move('RIGHT');
+
+        this.snek = snek;
+        this.board = board;
+
         this.initialized = true;
         this.state = 'normal';
     }
