@@ -33,9 +33,9 @@ export default class Game implements GameState {
         if (!this.initialized) {
             this.init();
         }
-        readInput(dt);
-        updateState(dt);
-        draw();
+        this.readInput(dt);
+        this.updateState(dt);
+        this.draw();
     }
 
     readInput(dt) {

@@ -17,26 +17,28 @@ const getFrameDurationMillis = fps => 1000.0 / fps;
 export default class GameLoop {
     running = false;
 
-    constructor(fps, fn) {
+    constructor(fps, fn, frameRateListener) {
+        this.frameRateListener = frameRateListener;
         this.init(fps, fn);
     }
 
     init(fps, fn) {
+        const frameDurationMillis = getFrameDurationMillis(fps);
         console.log('game loop init, fps:', fps);
         // TODO inject config
-        const minDtMillis = getFrameDurationMillis(fps) * 0.95;
+        // const minDtMillis = getFrameDurationMillis(fps) * 0.95;
+        // const sleepTimeMillis = 5.0; //getFrameDurationMillis(fps * 2.0);
         const maxDtMillis = getFrameDurationMillis(fps / 5.0);
-        const sleepTimeMillis = 5.0; //getFrameDurationMillis(fps * 2.0);
-        let dtMillis, lastTime, sleepStart;
+        let dtMillis = 0, lastTime, sleepStart;
         let sleeping = false;
 
         // TODO: remove itr after debugging is complete
         let itr = 0;
         const gameLoopConfig = {
             fpsMillis: getFrameDurationMillis(fps),
-            minDtMillis,
+            // minDtMillis,
             maxDtMillis,
-            sleepTimeMillis
+            // sleepTimeMillis
         };
         const configRounded = R.map(Math.round, gameLoopConfig);
         console.table(configRounded);
@@ -55,25 +57,24 @@ export default class GameLoop {
             if (!lastTime) {
                 lastTime = timeMillis;
             }
-            dtMillis = timeMillis - lastTime;
-            console.log('game loop iteration - dt=', dtMillis, 'ms');
+            dtMillis += timeMillis - lastTime;
 
             // (C) minimize compensation for dt being too big
             if (dtMillis > maxDtMillis) {
                 dtMillis = maxDtMillis;
             }
 
-            // (D) don't overexert (minimize processes/sec)
-            if (dtMillis < minDtMillis) {
-                console.log('sleeping for', sleepTimeMillis, ' - dt=', dtMillis, 'ms, min dt=', minDtMillis, 'ms');
-                this.enqueue(sleepTimeMillis);
-                return;
+            // (D) process per fps dt increment
+            while (dtMillis > frameDurationMillis) {
+                dtMillis -= frameDurationMillis;
+                // run the main function that we're wrapping in the loop (fn)
+                // TODO: may want to separate update() from draw(), ie update() in this loop, and draw() outside? but only if we update() AT LEAST ONCE
+                fn(dtMillis / 1000.0);
+                if (typeof this.frameRateListener === 'function') {
+                    this.frameRateListener(monitorFps(timeMillis));
+                }
             }
 
-            // run the main function that we're wrapping in the loop (fn)
-            console.log('RUN MAIN FN, dt=', Math.round(dtMillis), 'ms, actual dt=', Math.round(timeMillis - lastTime), 'ms');
-            fn(dtMillis / 1000.0);
-            monitorFps(timeMillis, dtMillis);
             lastTime = timeMillis;
             // calls loop() via setTimeout and requestAnimationFrame
             this.enqueue(getFrameDurationMillis(fps * 2.0));
@@ -105,8 +106,8 @@ export default class GameLoop {
 
 // TODO: export to FPS Monitor class/module
 // TODO: add a RESET function
-let frames = 0, actualFps = 0, lastCalcTime, lastTime;
-const monitorFps = (timeMillis, dtMillis) => {
+let frames = 0, actualFps = 0, lastCalcTime;
+const monitorFps = (timeMillis) => {
     frames++;
     if (!lastCalcTime) {
         lastCalcTime = timeMillis;
@@ -115,14 +116,9 @@ const monitorFps = (timeMillis, dtMillis) => {
         const dtSec = (timeMillis - lastCalcTime) / 1000.0;
         actualFps = Math.round(frames / dtSec);
         // console.log('fps: ', actualFps);
-        document.getElementById('fps').innerHTML = 'fps: ' + Math.round(actualFps);
         frames = 0;
         lastCalcTime = timeMillis;
     }
 
-    if (lastTime) {
-        const sinceLast = timeMillis - lastTime;
-        console.log('time since last loop:', sinceLast.toFixed(1), 'ms | ', dtMillis, 'ms');
-    }
-    lastTime = timeMillis;
+    return actualFps;
 };
