@@ -9,10 +9,10 @@ board.clear();
 board.setHead({x: 0, y: 0});
 board.move('UP'); // should die
 
-// board.clear();
-// board.setHead({x: 0, y: 0});
-// board.move('DOWN');
-// board.move('DOWN'); // should die
+board.clear();
+board.setHead({x: 0, y: 0});
+board.move('DOWN');
+board.move('DOWN'); // should die
 //
 // board.clear();
 // board.setHead({x: 0, y: 0});
@@ -22,5 +22,13 @@ board.move('UP'); // should die
 // board.move('RIGHT');
 // board.move('RIGHT');
 // board.move('RIGHT'); // should die
+
+// can't 180* turn (reverse directions)
+board.clear();
+board.setHead({x: 0, y: 0});
+board.move('RIGHT');
+board.move('RIGHT');
+board.move('RIGHT');
+board.move('LEFT'); // should die (goes right)
 
 console.log('end');

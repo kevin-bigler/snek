@@ -79,9 +79,13 @@ export default class Board {
         this.eventListeners.push({type, fn});
     }
 
+    removeEventListener(fn: Function) {
+        this.eventListeners = this.eventListeners.filter(x => x.fn !== fn);
+    }
+
     notifyEventListeners(type, data) {
         console.log('notifyEventListeners, ', this.eventListeners);
-        this.eventListeners.filter(x => x.type === type).forEach(x => x.fn(data));
+        this.eventListeners.filter(x => x.type === type).forEach(x => x.fn({type, ...data}));
     }
 
     /**
