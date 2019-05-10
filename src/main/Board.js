@@ -1,4 +1,5 @@
 import type {Size, Position, Direction} from './types';
+import * as R from 'ramda';
 
 export default class Board {
     head: Position;
@@ -21,6 +22,7 @@ export default class Board {
         this.head = null;
         this.tails = [];
         this.lastDir = null;
+        this.apples = [];
     }
 
     /**
@@ -33,7 +35,55 @@ export default class Board {
     }
 
     addApple(pos: Position) {
-        this.apples.push({...pos});
+        if (pos) {
+            this.apples.push({...pos});
+        } else {
+            this.apples.push(this.randomPos());
+        }
+    }
+
+    randomPos(): Position {
+        const allPositions = getAllPositions(this.size);
+        // TODO: optimize this, and account for occupied spaces better (maybe create a set of all open spaces and pick one at random)
+        console.log('allPositions:', JSON.stringify(allPositions, null, 2));
+
+        return {
+            x: getRandomInt(this.size.width),
+            y: getRandomInt(this.size.height)
+        };
+    }
+
+    /**
+     * just for logging purposes
+     */
+    toString() {
+        const tileToString = {
+            HEAD: 'O',
+            TAIL: 'c',
+            APPLE: 'x',
+            EMPTY: '_'
+        };
+        return R.range(0, this.size.height).map(y =>
+            R.range(0, this.size.width).map(x =>
+                ({x, y})).map(pos => this.getTileContents(pos)).map(t => tileToString[t]).join('.')).join('\n');
+    }
+
+    getTileContents(pos: Position): TileType {
+        // head, tail, apple, or empty
+        const eq = p => p.x === pos.x && p.y === pos.y;
+        if (eq(this.head)) {
+            return 'HEAD';
+        }
+
+        if (this.tails.some(eq)) {
+            return 'TAIL';
+        }
+
+        if (this.apples.some(eq)) {
+            return 'APPLE';
+        }
+
+        return 'EMPTY';
     }
 
     move(direction: Direction) {
@@ -147,3 +197,11 @@ const checkDir = (dir: Direction, lastDir: Direction) =>
         : dir;
 
 type DeathCause = 'HIT_WALL' | 'ATE_TAIL';
+
+const getRandomInt = (max, min = 0) =>
+    min + Math.floor(Math.random() * Math.floor(max));
+
+const getAllPositions = (size: Size) =>
+    R.range(0, size.width).map(x => R.range(0, size.height).map(y => ({x, y})));
+
+type TileType = 'HEAD' | 'TAIL' | 'APPLE' | 'EMPTY';

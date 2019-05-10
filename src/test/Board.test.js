@@ -169,6 +169,37 @@ describe('Board', () => {
     });
 
     it('#addApple to random position, when no position given', () => {
+        board.setHead({x: 2, y: 1});
+        expect(board.apples.length).toBe(0);
+        board.addApple();
+        expect(board.apples.length).toBe(1);
+        expect(board.apples[0]).toEqual({x: expect.any(Number), y: expect.any(Number)});
+        expect(board.apples[0]).not.toEqual({x: 2, y: 1}); // the head
+    });
 
+    it('#addApple random does not spawn on tail', () => {
+        board.setHead({x: 2, y: 1});
+        board.addApple({x: 2, y: 2});
+        board.move('DOWN'); // eat the apple to get tail length 1
+        expect(board.tails.length).toBe(1);
+        board.addApple();
+        expect(board.apples[0]).not.toEqual({x: 2, y: 1}); // tail
+        expect(board.apples[0]).not.toEqual({x: 2, y: 2}); // head
+    });
+
+    it('#clear resets head to null, tails to empty, apples to empty', () => {
+        // TODO
+    });
+
+    it('#toString for fun and maybe logging', () => {
+        board.setHead({x: 2, y: 1});
+        board.addApple({x: 2, y: 2});
+        board.move('DOWN'); // eat the apple to get tail length 1
+        expect(board.tails.length).toBe(1);
+        board.addApple({x: 1, y: 2});
+        board.move('LEFT');
+        board.addApple({x: 0, y: 0});
+        // board.addApple();
+        console.log(board.toString());
     });
 });
