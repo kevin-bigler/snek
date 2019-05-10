@@ -120,4 +120,55 @@ describe('Board', () => {
             })
         );
     });
+
+    describe('#move to open space does not change length', () => {
+        beforeEach(() => {
+            board.setHead({x: 1, y: 1});
+        });
+
+        const dirs = ['UP', 'DOWN', 'LEFT', 'RIGHT'];
+        dirs.forEach(dir =>
+            it(dir, () => {
+                expect(board.tails.length).toBe(0);
+                board.move(dir);
+                expect(board.tails.length).toBe(0);
+            })
+        );
+    });
+
+    it('#move eats apple, gets longer', () => {
+        const eatListener = jest.fn();
+        board.addEventListener('EAT', eatListener);
+
+        expect(board.tails.length).toBe(0);
+        expect(board.apples.length).toBe(0);
+        board.addApple({x: 0, y: 0});
+        expect(board.apples.length).toBe(1);
+        expect(board.tails.length).toBe(0);
+        board.setHead({x: 1, y: 1});
+        board.move('UP');
+
+        expect(board.tails.length).toBe(0);
+        board.move('LEFT');
+        expect(board.tails.length).toBe(1);
+        expect(board.apples.length).toBe(0);
+
+        expect(eatListener).toHaveBeenCalledTimes(1);
+        expect(eatListener).toHaveBeenCalledWith(expect.objectContaining({tailLength: 1, pos: {x: 0, y: 0}}));
+    });
+
+    it('#addApple to given position', () => {
+        board.setHead({x: 1, y: 1});
+        expect(board.apples.length).toBe(0);
+        board.addApple({x: 1, y: 2});
+        expect(board.apples.length).toBe(1);
+        expect(board.apples[0]).toEqual({x: 1, y: 2});
+
+        board.addApple({x: 2, y: 2});
+        expect(board.apples.length).toBe(2);
+    });
+
+    it('#addApple to random position, when no position given', () => {
+
+    });
 });

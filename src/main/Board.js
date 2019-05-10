@@ -6,6 +6,7 @@ export default class Board {
     size: Size;
     eventListeners: [Function] = [];
     lastDir;
+    apples: [Position] = [];
 
     /**
      *
@@ -28,7 +29,11 @@ export default class Board {
      */
     setHead(pos) {
         console.log('SET HEAD:', pos);
-        this.head = pos;
+        this.head = {...pos};
+    }
+
+    addApple(pos: Position) {
+        this.apples.push({...pos});
     }
 
     move(direction: Direction) {
@@ -47,8 +52,20 @@ export default class Board {
         }
 
         this.tails.push({...this.head});
+        if (this.hitApple(newPos)) {
+            this.eat(newPos);
+        } else {
+            this.tails.shift(); // remove the oldest tail (first element)
+        }
         this.head = newPos;
         this.lastDir = direction;
+    }
+
+    hitApple(pos: Position) {
+        console.log('apple hit check');
+        return this.apples.some(apple =>
+            apple.x === pos.x
+            && apple.y === pos.y);
     }
 
     inBounds(pos: Position): boolean {
@@ -85,6 +102,13 @@ export default class Board {
      */
     die(pos: Position, cause: DeathCause) {
         this.notifyEventListeners('DIE', {tailLength: this.tails.length, attemptedPos: pos, cause});
+    }
+
+    eat(pos: Position) {
+        // remove the apple
+        this.apples = this.apples.filter(apple => apple.x !== pos.x && apple.y !== pos.y);
+        // notify
+        this.notifyEventListeners('EAT', {tailLength: this.tails.length, pos});
     }
 }
 
