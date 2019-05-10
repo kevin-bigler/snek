@@ -34,18 +34,7 @@ export default class Board {
     move(direction: Direction) {
         console.log('MOVE: ', direction);
 
-        /**
-         * Can't move backwards
-         *
-         * @param dir
-         * @param lastDir
-         */
-        const checkDir = (dir: Direction, lastDir: Direction) =>
-            lastDir && isOpposite(dir, lastDir)
-                ? lastDir
-                : dir;
-
-        const dir = checkDir(direction);
+        const dir = checkDir(direction, this.lastDir);
         console.log('ACTUAL MOVE:', dir);
 
         const newPos = moves[dir](this.head);
@@ -122,5 +111,15 @@ const getOpposite = (d1: Direction) =>
         d1 === a || d1 === b)
     .filter(d =>
         d !== d1);
+/**
+ * Can't move backwards
+ *
+ * @param dir
+ * @param lastDir
+ */
+const checkDir = (dir: Direction, lastDir: Direction) =>
+    lastDir && isOpposite(dir, lastDir)
+        ? lastDir
+        : dir;
 
 type DeathCause = 'HIT_WALL' | 'ATE_TAIL';

@@ -1,4 +1,5 @@
 import Board from '../main/Board';
+import clone from 'clone';
 
 describe('Board', () => {
     let board: Board;
@@ -72,4 +73,51 @@ describe('Board', () => {
         );
     });
 
+    // eats tail
+    it('#move dies when eats tail', () => {
+        const deathListener = jest.fn();
+        board.addEventListener('DIE', deathListener);
+
+        board.setHead({x: 0, y: 0});
+        board.move('DOWN');
+        board.move('RIGHT');
+        board.move('UP');
+        expect(deathListener).toHaveBeenCalledTimes(0);
+        board.move('LEFT');
+        expect(deathListener).toHaveBeenCalledTimes(1);
+        expect(deathListener).toHaveBeenCalledWith(expect.objectContaining({type: 'DIE', cause: 'ATE_TAIL'}));
+    });
+
+    describe('#move continues straight if attempting opposite direction suddenly', () => {
+        const testScenarios = [
+            {
+                from: {x: 0, y: 1},
+                dirs: ['RIGHT', 'LEFT']
+            },
+            {
+                from: {x: 2, y: 1},
+                dirs: ['LEFT', 'RIGHT']
+            },
+            {
+                from: {x: 1, y: 2},
+                dirs: ['UP', 'DOWN']
+            },
+            {
+                from: {x: 1, y: 0},
+                dirs: ['DOWN', 'UP']
+            }
+        ];
+
+        testScenarios.forEach(test =>
+            it(`from ${test.dirs.join(' to ')}`, () => {
+                board.setHead(test.from);
+                board.move(test.dirs[0]);
+                const copy = clone(board);
+                board.move(test.dirs[1]); // attempts to move opposite direction
+                copy.move(test.dirs[0]); // moves same direction
+                // both end up in the same spot
+                expect(board.head).toEqual(copy.head);
+            })
+        );
+    });
 });
