@@ -1,4 +1,4 @@
-export default class FpsMonitor {
+export default class FpsCalculator {
     frames = 0;
     /**
      * Last-calculated fps
@@ -12,11 +12,12 @@ export default class FpsMonitor {
     lastCalcTime;
 
     /**
+     * Gets new fps value after adding a new frame timestamp ({@link timeMillis})
      *
      * @param {number} timeMillis The current time in millis
-     * @return {number}
+     * @return {number} New fps value
      */
-    monitorFps(timeMillis) {
+    recalculateFps(timeMillis) {
         this.frames++;
         if (!this.lastCalcTime) {
             this.lastCalcTime = timeMillis;
@@ -33,6 +34,6 @@ export default class FpsMonitor {
     }
 
     reset() {
-
+        // TODO
     }
 }

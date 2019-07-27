@@ -1,26 +1,34 @@
 import * as R from 'ramda';
+import FpsCalculator from './util/FpsCalculator';
 
 export default class GameLoop {
     running = false;
 
-    constructor({fps, fn, frameRateListener, maxDtMillis}) {
+    /**
+     * DI constructor
+     *
+     * @param {number} fps Frames per second configuration value
+     * @param {Function} fn The main function to be ran in the loop
+     * @param {Function} onFpsUpdate Listener function, invoked upon each new fps calculation
+     * @param [maxDtMillis] Optional. Used to clamp dtMillis to a maximum value. Defaults to 5x normal frame duration (from fps)
+     */
+    constructor({fps, fn, onFpsUpdate, maxDtMillis}) {
+        this.onFpsUpdate = onFpsUpdate;
         this.init({
             fps,
             fn,
-            frameRateListener,
             maxDtMillis: maxDtMillis || getFrameMillis(fps) * 5.0
         });
     }
 
     /**
-     * // TODO: remove itr after debugging is complete
+     * // TODO: remove itr variable, after debugging is complete (or build a switch to turn it off/on)
      *
      * @param fps
      * @param fn
-     * @param frameRateListener
      * @param maxDtMillis Used to clamp dtMillis to a maximum value
      */
-    init({fps, fn, frameRateListener, maxDtMillis}) {
+    init({fps, fn, maxDtMillis}) {
         const frameMillis = getFrameMillis(fps);
         console.log('game loop init, fps:', fps);
 
@@ -29,6 +37,8 @@ export default class GameLoop {
         let itr = 0;
 
         logConfigValues({fps, maxDtMillis});
+
+        const fpsCalculator = new FpsCalculator();
 
         const loop = (timeMillis) => {
             if (++itr > 1000) {
@@ -56,14 +66,12 @@ export default class GameLoop {
                 // run the main function that we're wrapping in the loop (fn)
                 // TODO: may want to separate update() from draw(), ie update() in this loop, and draw() outside? but only if we update() AT LEAST ONCE
                 fn(dtMillis / 1000.0);
-                if (typeof frameRateListener === 'function') {
-                    frameRateListener(monitorFps(timeMillis));
-                }
+                this.updateFrameRate(timeMillis, fpsCalculator);
             }
 
             lastTime = timeMillis;
             // calls loop() via setTimeout and requestAnimationFrame
-            this.enqueue(this.loop, getFrameMillis(fps * 2.0));
+            this.enqueue(this.loop, getFrameMillis(fps * 2.0)); // TODO: wtf is this value? lol. probably want to use frameMillis here
         };
         this.loop = loop.bind(this);
     }
@@ -87,6 +95,13 @@ export default class GameLoop {
     stop() {
         console.log('game loop stop');
         this.running = false;
+    }
+
+    updateFrameRate(timeMillis, fpsCalculator) {
+        if (typeof this.onFpsUpdate === 'function') {
+            const currentFps = fpsCalculator.recalculateFps(timeMillis);
+            this.onFpsUpdate(currentFps);
+        }
     }
 }
 
