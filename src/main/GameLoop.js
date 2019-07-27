@@ -71,7 +71,7 @@ export default class GameLoop {
 
             lastTime = timeMillis;
             // calls loop() via setTimeout and requestAnimationFrame
-            this.enqueue(this.loop, getFrameMillis(fps * 2.0)); // TODO: wtf is this value? lol. probably want to use frameMillis here
+            this.enqueue(this.loop, getFrameMillis(fps * 2.0)); // TODO: wtf is this value? lol. probably want to use `frameMillis / 2.0` here or something
         };
         this.loop = loop.bind(this);
     }
