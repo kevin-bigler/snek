@@ -124,14 +124,39 @@ describe('Board', () => {
         const deathListener = jest.fn();
         board.addEventListener('DIE', deathListener);
 
-        board.setHead({x: 0, y: 0});
-        board.move('DOWN');
-        board.move('RIGHT');
-        board.move('UP');
-        expect(deathListener).toHaveBeenCalledTimes(0);
-        board.move('LEFT');
+        board.addApple({x: 0, y: 1});
+        board.addApple({x: 0, y: 2});
+        board.addApple({x: 1, y: 2});
+        board.addApple({x: 2, y: 2});
 
-        // TODO uncomment once we've fixed the test
+        board.setHead({x: 0, y: 0});
+
+        console.log(board.toString());
+        board.move('DOWN');
+        console.log(board.toString());
+        board.move('DOWN');
+        console.log(board.toString());
+        board.move('RIGHT');
+        console.log(board.toString());
+        board.move('RIGHT');
+        console.log(board.toString());
+        // snek is now 5 long (4 tail, 1 head) - min. length to eat its tail. looks like this:
+        /*
+            x _ _
+            x _ _
+            x x o
+         */
+        board.move('UP');
+        board.move('LEFT');
+        // not dead yet
+        expect(deathListener).toHaveBeenCalledTimes(0);
+        console.log('not dead yet:');
+        console.log(board.toString());
+
+        // should die by doing this last move...
+        board.move('DOWN');
+        console.log('should be dead:');
+        console.log(board.toString());
         expect(deathListener).toHaveBeenCalledTimes(1);
         expect(deathListener).toHaveBeenCalledWith(expect.objectContaining({type: 'DIE', cause: 'ATE_TAIL'}));
     });

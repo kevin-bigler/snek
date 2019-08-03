@@ -18,7 +18,7 @@ export default class Board {
     }
 
     clear() {
-        console.log('---');
+        // console.log('---');
         this.head = null;
         this.tails = [];
         this.lastDir = null;
@@ -30,7 +30,7 @@ export default class Board {
      * @param {Position} pos
      */
     setHead(pos) {
-        console.log('SET HEAD:', pos);
+        // console.log('SET HEAD:', pos);
         this.head = {...pos};
     }
 
@@ -45,7 +45,7 @@ export default class Board {
     randomPos(): Position {
         const allPositions = getAllPositions(this.size);
         // TODO: optimize this, and account for occupied spaces better (maybe create a set of all open spaces and pick one at random)
-        console.log('allPositions:', JSON.stringify(allPositions, null, 2));
+        // console.log('allPositions:', JSON.stringify(allPositions, null, 2));
 
         return {
             x: getRandomInt(this.size.width),
@@ -87,10 +87,10 @@ export default class Board {
     }
 
     move(direction: Direction) {
-        console.log('MOVE: ', direction);
+        // console.log('MOVE: ', direction);
 
         const dir = checkDir(direction, this.lastDir);
-        console.log('ACTUAL MOVE:', dir);
+        // console.log('ACTUAL MOVE:', dir);
 
         const newPos = moves[dir](this.head);
         if (!this.inBounds(newPos)) {
@@ -112,20 +112,20 @@ export default class Board {
     }
 
     hitApple(pos: Position) {
-        console.log('apple hit check');
+        // console.log('apple hit check');
         return this.apples.some(apple =>
             apple.x === pos.x
             && apple.y === pos.y);
     }
 
     inBounds(pos: Position): boolean {
-        console.log('bounds check', {pos, size: this.size});
+        // console.log('bounds check', {pos, size: this.size});
         return pos.x < this.size.width && pos.x >= 0
             && pos.y < this.size.height && pos.y >= 0;
     }
 
     hitTail(pos: Position): boolean {
-        console.log('tail hit check');
+        // console.log('tail hit check');
         return this.tails.some(tail =>
             tail.x === pos.x
             && tail.y === pos.y);
@@ -140,7 +140,7 @@ export default class Board {
     }
 
     notifyEventListeners(type, data) {
-        console.log('notifyEventListeners, ', this.eventListeners);
+        // console.log('notifyEventListeners, ', this.eventListeners);
         this.eventListeners.filter(x => x.type === type).forEach(x => x.fn({type, ...data}));
     }
 
