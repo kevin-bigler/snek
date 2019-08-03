@@ -71,7 +71,7 @@ export default class Board {
     getTileContents(pos: Position): TileType {
         // head, tail, apple, or empty
         const eq = p => p.x === pos.x && p.y === pos.y;
-        if (eq(this.head)) {
+        if (this.head && eq(this.head)) {
             return 'HEAD';
         }
 
