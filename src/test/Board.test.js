@@ -35,6 +35,50 @@ describe('Board', () => {
         );
     });
 
+    it('#move updates tail state data (add neck, remove tip of tail)', () => {
+        board.addApple({x: 0, y: 1});
+        board.addApple({x: 0, y: 2});
+        board.setHead({x: 0, y: 0});
+        board.move('DOWN');
+        board.move('DOWN');
+        // snek now has eaten 2 apples, so tail length is 2 while head is at (0, 2)
+
+        expect(board.tails).toEqual([{x: 0, y: 0}, {x: 0, y: 1}]);
+        expect(board.head).toEqual({x: 0, y: 2});
+
+        board.move('RIGHT');
+        expect(board.head).toEqual({x: 1, y: 2});
+        expect(board.tails).toEqual({x: 0, y: 1}, {x: 0, y: 2});
+
+        board.move('RIGHT');
+        expect(board.head).toEqual({x: 2, y: 2});
+        expect(board.tails).toEqual({x: 0, y: 2}, {x: 1, y: 2});
+
+        board.move('UP');
+        expect(board.head).toEqual({x: 2, y: 1});
+        expect(board.tails).toEqual({x: 1, y: 2}, {x: 2, y: 2});
+
+        board.move('UP');
+        expect(board.head).toEqual({x: 2, y: 0});
+        expect(board.tails).toEqual({x: 2, y: 2}, {x: 2, y: 1});
+
+        board.move('LEFT');
+        expect(board.head).toEqual({x: 1, y: 0});
+        expect(board.tails).toEqual({x: 2, y: 1}, {x: 2, y: 0});
+
+        board.move('LEFT');
+        expect(board.head).toEqual({x: 0, y: 0});
+        expect(board.tails).toEqual({x: 2, y: 0}, {x: 1, y: 0});
+
+        board.move('DOWN');
+        expect(board.head).toEqual({x: 0, y: 1});
+        expect(board.tails).toEqual({x: 1, y: 0}, {x: 0, y: 0});
+
+        board.move('DOWN');
+        expect(board.head).toEqual({x: 0, y: 2});
+        expect(board.tails).toEqual({x: 0, y: 0}, {x: 0, y: 1});
+    });
+
     // hit walls/out of bounds
     describe('#move dies when going out of bounds (hit walls)', () => {
         const deathListener = jest.fn();
@@ -88,8 +132,8 @@ describe('Board', () => {
         board.move('LEFT');
 
         // TODO uncomment once we've fixed the test
-        // expect(deathListener).toHaveBeenCalledTimes(1);
-        // expect(deathListener).toHaveBeenCalledWith(expect.objectContaining({type: 'DIE', cause: 'ATE_TAIL'}));
+        expect(deathListener).toHaveBeenCalledTimes(1);
+        expect(deathListener).toHaveBeenCalledWith(expect.objectContaining({type: 'DIE', cause: 'ATE_TAIL'}));
     });
 
     describe('#move continues straight if attempting opposite direction suddenly', () => {

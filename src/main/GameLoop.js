@@ -66,12 +66,12 @@ export default class GameLoop {
                 // run the main function that we're wrapping in the loop (fn)
                 // TODO: may want to separate update() from draw(), ie update() in this loop, and draw() outside? but only if we update() AT LEAST ONCE
                 fn(dtMillis / 1000.0);
-                this.updateFrameRate(timeMillis, fpsCalculator);
+                this.recordFpsUpdate(timeMillis, fpsCalculator);
             }
 
             lastTime = timeMillis;
             // calls loop() via setTimeout and requestAnimationFrame
-            this.enqueue(this.loop, getFrameMillis(fps * 2.0)); // TODO: wtf is this value? lol. probably want to use `frameMillis / 2.0` here or something
+            this.enqueue(this.loop, frameMillis / 2.0); // TODO: wtf is this value? lol. probably want to use `frameMillis / 2.0` here or something
         };
         this.loop = loop.bind(this);
     }
@@ -97,7 +97,7 @@ export default class GameLoop {
         this.running = false;
     }
 
-    updateFrameRate(timeMillis, fpsCalculator) {
+    recordFpsUpdate(timeMillis, fpsCalculator) {
         if (typeof this.onFpsUpdate === 'function') {
             const currentFps = fpsCalculator.recalculateFps(timeMillis);
             this.onFpsUpdate(currentFps);
