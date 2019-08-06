@@ -9,8 +9,13 @@ describe('Board but you know, visually', () => {
 
     afterEach(jest.clearAllMocks);
 
+    /**
+     *
+     * @param board
+     * @param {string} state
+     */
     const assertState = (board, state) => {
-        expect(board.toString()).toBe(state.trim());
+        expect(board.toString()).toBe(state.replace(/\s/, ''));
     };
 
     const startState = (width, height) =>
@@ -22,7 +27,7 @@ describe('Board but you know, visually', () => {
 _._._
 _._._
 _._._
-        `.trim());
+        `);
 
         expect(startState(3, 2)).toEqual(`
 _._._
