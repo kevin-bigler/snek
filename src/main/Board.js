@@ -160,6 +160,17 @@ export default class Board {
         // notify
         this.notifyEventListeners('EAT', {tailLength: this.tails.length, pos});
     }
+
+    /**
+     * Get raw data that represents this Board's state
+     */
+    getState() {
+        // TODO return obj with the board's properties
+    }
+
+    static fromState(state) {
+        // TODO instantiate a Board with the state's properties
+    }
 }
 
 const moves = {
